@@ -1,288 +1,225 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <title>Sistema de Gestión - Columbus y Cia</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
+let indiceEditando = null;
 
-<!-- LOGIN -->
-<div class="login-container">
-    <div class="login-box">
-        <h2>Columbus y Cia</h2>
-        <p>Ingreso al sistema</p>
+// ===============================
+// CUANDO CARGA LA PÁGINA
+// ===============================
 
-        <div class="form-group">
-            <label>Usuario</label>
-            <input type="text" id="usuario">
-        </div>
+if (localStorage.getItem("sesionActiva") === "true") {
+    document.querySelector(".login-container").style.display = "none";
+    document.getElementById("sistema").style.display = "block";
+}
 
-        <div class="form-group">
-            <label>Contraseña</label>
-            <input type="password" id="password">
-        </div>
+document.addEventListener("DOMContentLoaded", function () {
 
-        <button class="btn-primary" onclick="login()">
-            Ingresar
-        </button>
+    cargarEmpleados();
 
-        <p id="errorLogin" class="error-text"></p>
-    </div>
-</div>
+    document.getElementById("btnGuardar").addEventListener("click", function () {
 
-<!-- SISTEMA (oculto al inicio) -->
-<div id="sistema" style="display:none;">
+        if (indiceEditando === null) {
+            guardarEmpleado();
+        } else {
+            actualizarEmpleado();
+        }
 
-    <header class="header">
-        <span>Sistema de Gestión - Columbus y Cia</span>
-        <button class="btn-logout" onclick="cerrarSesion()">
-            Cerrar Sesión
-        </button>
-    </header>
+    });
+
+});
 
 
-<div class="container">
+// ===============================
+// GUARDAR NUEVO EMPLEADO
+// ===============================
 
-    <!-- BOTONES DE NAVEGACIÓN -->
-    <div class="nav-buttons">
-        <button class="nav-btn active" onclick="mostrarSeccion('empleado')">
-            Información del Empleado
-        </button>
-        <button class="nav-btn" onclick="mostrarSeccion('contrato')">
-            Información del Contrato
-        </button>
-        <button class="nav-btn" onclick="mostrarSeccion('seguridad')">
-            Seguridad Social
-        </button>
-    </div>
+function guardarEmpleado() {
 
-    <!-- ===================== EMPLEADO ===================== -->
-    <div id="seccionEmpleado">
+    const empleado = obtenerDatosFormulario();
 
-        <div class="section-title">Información del Empleado</div>
+    if (!empleado.nombre || !empleado.apellidos || !empleado.numeroDocumento) {
+        alert("Complete los campos obligatorios");
+        return;
+    }
 
-        <form id="formEmpleado">
+    let empleados = JSON.parse(localStorage.getItem("empleados")) || [];
+    empleados.push(empleado);
 
-            <div class="form-group">
-                <label>Nombre</label>
-                <input type="text" id="nombre">
-            </div>
+    localStorage.setItem("empleados", JSON.stringify(empleados));
 
-            <div class="form-group">
-                <label>Apellidos</label>
-                <input type="text" id="apellidos">
-            </div>
-
-            <div class="form-group">
-                <label>Tipo de documento</label>
-                <select id="tipoDocumento">
-                    <option value="">Seleccione...</option>
-                    <option>Cédula</option>
-                    <option>Pasaporte</option>
-                    <option>Tarjeta de identidad</option>
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label>Número de identificación</label>
-                <input type="number" id="numeroDocumento">
-            </div>
-
-            <div class="form-group">
-                <label>Fecha de nacimiento</label>
-                <input type="date" id="fechaNacimiento">
-            </div>
-
-            <div class="form-group">
-                <label>Estado Civil</label>
-                <select id="estadoCivil">
-                    <option value="">Seleccione...</option>
-                    <option>Soltero</option>
-                    <option>Casado</option>
-                    <option>Unión libre</option>
-                    <option>Divorciado</option>
-                    <option>Viudo</option>
-                </select>
-            </div>
-
-            <button type="submit" id="btnGuardar" class="btn-primary">
-    Guardar
-</button>
+    limpiarFormulario();
+    cargarEmpleados();
+}
 
 
-        </form>
+// ===============================
+// ACTUALIZAR EMPLEADO
+// ===============================
 
-        <!-- TABLA -->
-        <table class="tabla">
-            <thead>
-                <tr>
-                    <th>Nombre</th>
-                    <th>Apellidos</th>
-                    <th>Documento</th>
-                    <th>Fecha Nacimiento</th>
-                    <th>Estado Civil</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-            <tbody id="tablaEmpleados"></tbody>
-        </table>
+function actualizarEmpleado() {
 
-    </div>
+    let empleados = JSON.parse(localStorage.getItem("empleados")) || [];
 
-    <!-- ===================== CONTRATO ===================== -->
-    <div id="seccionContrato" style="display:none;">
+    empleados[indiceEditando] = obtenerDatosFormulario();
 
-        <div class="section-title">Información del Contrato</div>
+    localStorage.setItem("empleados", JSON.stringify(empleados));
 
-        <form>
+    indiceEditando = null;
 
-            <div class="form-group">
-                <label>Contrato escaneado</label>
-                <input type="file">
-            </div>
+    document.getElementById("btnGuardar").textContent = "Guardar";
 
-            <div class="form-group">
-                <label>Liquidación escaneada</label>
-                <input type="file">
-            </div>
-
-             <div class="form-group">
-                <label>Cedula escaneada</label>
-                <input type="file">
-            </div>
+    limpiarFormulario();
+    cargarEmpleados();
+}
 
 
-            <div class="form-group">
-                <label>Cargo</label>
-                <input type="text">
-            </div>
+// ===============================
+// EDITAR
+// ===============================
 
-            <div class="form-group">
-                <label>Área</label>
-                <input type="text">
-            </div>
+function editarEmpleado(index) {
 
-            <div class="form-group">
-                <label>Fecha de ingreso</label>
-                <input type="date">
-            </div>
+    let empleados = JSON.parse(localStorage.getItem("empleados")) || [];
+    const emp = empleados[index];
 
-            <div class="form-group">
-                <label>Tipo de contrato</label>
-                <select>
-                    <option>Prestación de servicios</option>
-                    <option>Fijo</option>
-                    <option>Indefinido</option>
-                    <option>Por obra o labor</option>
-                </select>
-            </div>
+    document.getElementById("nombre").value = emp.nombre;
+    document.getElementById("apellidos").value = emp.apellidos;
+    document.getElementById("tipoDocumento").value = emp.tipoDocumento;
+    document.getElementById("numeroDocumento").value = emp.numeroDocumento;
+    document.getElementById("fechaNacimiento").value = emp.fechaNacimiento;
+    document.getElementById("estadoCivil").value = emp.estadoCivil;
 
-            <div class="form-group">
-                <label>Fecha de vencimiento</label>
-                <input type="date">
-            </div>
+    indiceEditando = index;
 
-            <div class="form-group">
-                <label>Remuneración</label>
-                <input type="number">
-            </div>
+    document.getElementById("btnGuardar").textContent = "Actualizar";
 
-            <div class="form-group">
-                <label>Estado</label>
-                <select>
-                    <option>Activo</option>
-                    <option>Finalizado</option>
-                    <option>Suspendido</option>
-                </select>
-            </div>
+}
 
-            <div class="form-group">
-                <label>Fecha de retiro</label>
-                <input type="date">
-            </div>
 
-            <div class="form-group">
-                <label>Fecha de pago de liquidación</label>
-                <input type="date">
-            </div>
+// ===============================
+// ELIMINAR
+// ===============================
 
-        </form>
+function eliminarEmpleado(index) {
 
-    </div>
+    let empleados = JSON.parse(localStorage.getItem("empleados")) || [];
+    empleados.splice(index, 1);
 
-    <!-- ===================== SEGURIDAD SOCIAL ===================== -->
-    <div id="seccionSeguridad" style="display:none;">
+    localStorage.setItem("empleados", JSON.stringify(empleados));
 
-        <div class="section-title">Información de Seguridad Social</div>
+    cargarEmpleados();
+}
 
-        <form>
 
-            <div class="form-group">
-                <label>EPS</label>
-                <input type="text">
-            </div>
+// ===============================
+// CARGAR TABLA
+// ===============================
 
-            <div class="form-group">
-                <label>Fecha de afiliación EPS</label>
-                <input type="date">
-            </div>
+function cargarEmpleados() {
 
-            <div class="form-group">
-                <label>¿Tiene beneficiarios?</label>
-                <select>
-                    <option>Seleccione...</option>
-                    <option>Sí</option>
-                    <option>No</option>
-                </select>
-            </div>
+    const tabla = document.getElementById("tablaEmpleados");
+    tabla.innerHTML = "";
 
-            <div class="form-group">
-                <label>Caja de Compensación</label>
-                <input type="text">
-            </div>
+    let empleados = JSON.parse(localStorage.getItem("empleados")) || [];
 
-            <div class="form-group">
-                <label>Fecha de afiliación Caja</label>
-                <input type="date">
-            </div>
+    empleados.forEach((emp, index) => {
 
-            <div class="form-group">
-                <label>ARL</label>
-                <input type="text">
-            </div>
+        tabla.innerHTML += `
+            <tr>
+                <td>${emp.nombre}</td>
+                <td>${emp.apellidos}</td>
+                <td>${emp.tipoDocumento} ${emp.numeroDocumento}</td>
+                <td>${emp.fechaNacimiento}</td>
+                <td>${emp.estadoCivil}</td>
+                <td>
+                    <button class="action-btn edit" onclick="editarEmpleado(${index})">
+                        Editar
+                    </button>
+                    <button class="action-btn delete" onclick="eliminarEmpleado(${index})">
+                        Eliminar
+                    </button>
+                </td>
+            </tr>
+        `;
 
-            <div class="form-group">
-                <label>Fecha de afiliación ARL</label>
-                <input type="date">
-            </div>
+    });
+}
 
-            <div class="form-group">
-                <label>¿Enfermedad laboral?</label>
-                <select>
-                    <option>Seleccione...</option>
-                    <option>Sí</option>
-                    <option>No</option>
-                </select>
-            </div>
 
-            <div class="form-group">
-                <label>Fondo de Pensiones</label>
-                <input type="text">
-            </div>
+// ===============================
+// OBTENER DATOS FORMULARIO
+// ===============================
 
-            <div class="form-group">
-                <label>Fondo de Cesantías</label>
-                <input type="text">
-            </div>
+function obtenerDatosFormulario() {
 
-        </form>
+    return {
+        nombre: document.getElementById("nombre").value,
+        apellidos: document.getElementById("apellidos").value,
+        tipoDocumento: document.getElementById("tipoDocumento").value,
+        numeroDocumento: document.getElementById("numeroDocumento").value,
+        fechaNacimiento: document.getElementById("fechaNacimiento").value,
+        estadoCivil: document.getElementById("estadoCivil").value
+    };
 
-    </div>
+}
 
-</div>
 
-<script src="app.js"></script>
+// ===============================
+// LIMPIAR FORMULARIO
+// ===============================
 
-</body>
-</html>
+function limpiarFormulario() {
+    document.getElementById("formEmpleado").reset();
+}
+
+
+// ===============================
+// CAMBIAR SECCIONES
+// ===============================
+
+function mostrarSeccion(seccion) {
+
+    document.getElementById("seccionEmpleado").style.display = "none";
+    document.getElementById("seccionContrato").style.display = "none";
+    document.getElementById("seccionSeguridad").style.display = "none";
+
+    if (seccion === "empleado") {
+        document.getElementById("seccionEmpleado").style.display = "block";
+    }
+
+    if (seccion === "contrato") {
+        document.getElementById("seccionContrato").style.display = "block";
+    }
+
+    if (seccion === "seguridad") {
+        document.getElementById("seccionSeguridad").style.display = "block";
+    }
+
+}
+
+
+// ===============================
+// CERRAR SESIÓN
+// ===============================
+
+function cerrarSesion() {
+    localStorage.removeItem("sesionActiva");
+
+    window.location.replace("login.html");
+}
+
+
+function login() {
+
+    let usuario = document.getElementById("usuario").value;
+    let password = document.getElementById("password").value;
+
+    if (usuario === "admin" && password === "1234") {
+
+        localStorage.setItem("sesionActiva", "true");
+        window.location.href = "./index.html";
+
+    } else {
+        document.getElementById("errorLogin").innerText = "Usuario o contraseña incorrectos";
+    }
+}
+window.location.href = window.location.origin + "/Columbus-sistema/login.html";
+
+
