@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Sistema de Gestión - Columbus y Cia</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="login-container">
+    <div class="login-box">
+        <h2>Columbus y Cia</h2>
+        <p>Ingreso al sistema</p>
+
+        <div class="form-group">
+            <label>Usuario</label>
+            <input type="text" id="usuario">
+        </div>
+
+        <div class="form-group">
+            <label>Contraseña</label>
+            <input type="password" id="password">
+        </div>
+
+        <button class="btn-primary" onclick="login()">
+            Ingresar
+        </button>
+
+        <p id="errorLogin" class="error-text"></p>
+    </div>
+</div>
+
+<!-- SISTEMA (oculto al inicio) -->
+<div id="sistema" style="display:none;">
+
+    <header class="header">
+        <span>Sistema de Gestión - Columbus y Cia</span>
+        <button class="btn-logout" onclick="cerrarSesion()">
+            Cerrar Sesión
+        </button>
+    </header>
+
+
+<div class="container">
+
+    <!-- BOTONES DE NAVEGACIÓN -->
+    <div class="nav-buttons">
+        <button class="nav-btn active" onclick="mostrarSeccion('empleado')">
+            Información del Empleado
+        </button>
+        <button class="nav-btn" onclick="mostrarSeccion('contrato')">
+            Información del Contrato
+        </button>
+        <button class="nav-btn" onclick="mostrarSeccion('seguridad')">
+            Seguridad Social
+        </button>
+    </div>
+
+    <!-- ===================== EMPLEADO ===================== -->
+    <div id="seccionEmpleado">
+
+        <div class="section-title">Información del Empleado</div>
+
+        <form id="formEmpleado">
+
+            <div class="form-group">
+                <label>Nombre</label>
+                <input type="text" id="nombre">
+            </div>
+
+            <div class="form-group">
+                <label>Apellidos</label>
+                <input type="text" id="apellidos">
+            </div>
+
+            <div class="form-group">
+                <label>Tipo de documento</label>
+                <select id="tipoDocumento">
+                    <option value="">Seleccione...</option>
+                    <option>Cédula</option>
+                    <option>Pasaporte</option>
+                    <option>Tarjeta de identidad</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Número de identificación</label>
+                <input type="number" id="numeroDocumento">
+            </div>
+
+            <div class="form-group">
+                <label>Fecha de nacimiento</label>
+                <input type="date" id="fechaNacimiento">
+            </div>
+
+            <div class="form-group">
+                <label>Estado Civil</label>
+                <select id="estadoCivil">
+                    <option value="">Seleccione...</option>
+                    <option>Soltero</option>
+                    <option>Casado</option>
+                    <option>Unión libre</option>
+                    <option>Divorciado</option>
+                    <option>Viudo</option>
+                </select>
+            </div>
+
+            <button type="submit" id="btnGuardar" class="btn-primary">
+    Guardar
+</button>
+
+
+        </form>
+
+        <!-- TABLA -->
+        <table class="tabla">
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Apellidos</th>
+                    <th>Documento</th>
+                    <th>Fecha Nacimiento</th>
+                    <th>Estado Civil</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody id="tablaEmpleados"></tbody>
+        </table>
+
+    </div>
+
+    <!-- ===================== CONTRATO ===================== -->
+    <div id="seccionContrato" style="display:none;">
+
+        <div class="section-title">Información del Contrato</div>
+
+        <form>
+
+            <div class="form-group">
+                <label>Contrato escaneado</label>
+                <input type="file">
+            </div>
+
+            <div class="form-group">
+                <label>Liquidación escaneada</label>
+                <input type="file">
+            </div>
+
+             <div class="form-group">
+                <label>Cedula escaneada</label>
+                <input type="file">
+            </div>
+
+
+            <div class="form-group">
+                <label>Cargo</label>
+                <input type="text">
+            </div>
+
+            <div class="form-group">
+                <label>Área</label>
+                <input type="text">
+            </div>
+
+            <div class="form-group">
+                <label>Fecha de ingreso</label>
+                <input type="date">
+            </div>
+
+            <div class="form-group">
+                <label>Tipo de contrato</label>
+                <select>
+                    <option>Prestación de servicios</option>
+                    <option>Fijo</option>
+                    <option>Indefinido</option>
+                    <option>Por obra o labor</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Fecha de vencimiento</label>
+                <input type="date">
+            </div>
+
+            <div class="form-group">
+                <label>Remuneración</label>
+                <input type="number">
+            </div>
+
+            <div class="form-group">
+                <label>Estado</label>
+                <select>
+                    <option>Activo</option>
+                    <option>Finalizado</option>
+                    <option>Suspendido</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Fecha de retiro</label>
+                <input type="date">
+            </div>
+
+            <div class="form-group">
+                <label>Fecha de pago de liquidación</label>
+                <input type="date">
+            </div>
+
+        </form>
+
+    </div>
+
+    <!-- ===================== SEGURIDAD SOCIAL ===================== -->
+    <div id="seccionSeguridad" style="display:none;">
+
+        <div class="section-title">Información de Seguridad Social</div>
+
+        <form>
+
+            <div class="form-group">
+                <label>EPS</label>
+                <input type="text">
+            </div>
+
+            <div class="form-group">
+                <label>Fecha de afiliación EPS</label>
+                <input type="date">
+            </div>
+
+            <div class="form-group">
+                <label>¿Tiene beneficiarios?</label>
+                <select>
+                    <option>Seleccione...</option>
+                    <option>Sí</option>
+                    <option>No</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Caja de Compensación</label>
+                <input type="text">
+            </div>
+
+            <div class="form-group">
+                <label>Fecha de afiliación Caja</label>
+                <input type="date">
+            </div>
+
+            <div class="form-group">
+                <label>ARL</label>
+                <input type="text">
+            </div>
+
+            <div class="form-group">
+                <label>Fecha de afiliación ARL</label>
+                <input type="date">
+            </div>
+
+            <div class="form-group">
+                <label>¿Enfermedad laboral?</label>
+                <select>
+                    <option>Seleccione...</option>
+                    <option>Sí</option>
+                    <option>No</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Fondo de Pensiones</label>
+                <input type="text">
+            </div>
+
+            <div class="form-group">
+                <label>Fondo de Cesantías</label>
+                <input type="text">
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+<script src="app.js"></script>
+
+</body>
+</html>
+
+
+
